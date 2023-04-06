@@ -20,6 +20,7 @@ wrangler publish
 
 ## Create LogPush Job
 Example:
+```
 curl -s -X POST 'https://api.cloudflare.com/client/v4/accounts/{AccountID}/logpush/jobs' -X POST -d '
 {
   "name": "logpush-to-worker",
@@ -27,6 +28,9 @@ curl -s -X POST 'https://api.cloudflare.com/client/v4/accounts/{AccountID}/logpu
   "dataset": "workers_trace_events",
   "enabled": true
 }' -H "X-Auth-Email: ....." -H "X-Auth-Key: ...."
+```
+
 Insert your Account ID (find in Workers Tab on Right side), your worker domain, your logpush secret, and CF API Auth Details (either Global API Key or API Token)
+
 
 CF will send a test event. If it works, then congrats you're done. Check in LogTail for your events and take a nap.
