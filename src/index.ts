@@ -1,37 +1,49 @@
-// All Redirect to https://gist.github.com/stefandanaita/88c4d8b187400d5b07524cd0a12843b2
+// All Credit to https://gist.github.com/stefandanaita/88c4d8b187400d5b07524cd0a12843b2
 // SPDX-License-Identifier: MIT-0
 
+export interface Env {
+	AuthSecret: string
+	LogPushSecret: string
+}
 export default {
   async fetch(
-    request: Request
+	request: Request,
+		env: Env,
+		ctx: ExecutionContext
   ): Promise<Response> {
+	if (request.headers.get("Authorization") !== env.LogPushSecret) {
+			  return new Response("Unauthorized", { status: 401 });
+	}
     if (!request.body) {
-      return new Response("Oops", { status: 500 });
+      return new Response("No Body", { status: 500 });
     }
-
     const events = request.body
       .pipeThrough(new DecompressionStream("gzip"))
       .pipeThrough(new TextDecoderStream())
       .pipeThrough(readlineStream());
 
+	let eventsToPush: string[] = []
     for await (const event of streamAsyncIterator(events)) {
       // Do stuff with the event
 	  console.log(event)
-      var response = await fetch("https://in.logtail.com", {
+	  eventsToPush.push(JSON.parse(event));
+    }
+	let json = JSON.stringify(eventsToPush)
+	console.log(json)
+	var response = await fetch("https://in.logtail.com", {
         method: "POST",
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
-          Authorization: "Bearer ....", // You can use secrets here as well, see https://developers.cloudflare.com/workers/platform/environment-variables/#add-secrets-to-your-project
+          Authorization: env.AuthSecret, 
         },
-        body: event,
+        body: json,
       });
 	  if (response.ok == false) {
 		return new Response(`Logtail responded with: ${await response.text()}`, { status: 500 });
 	  }
-    }
 
-    return new Response("Hello World!");
+    return new Response("Nom nom!", { status: 202 });
   },
 };
 
