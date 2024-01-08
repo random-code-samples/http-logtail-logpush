@@ -17,6 +17,6 @@
   },
   "homepage": "https://github.com/random-code-samples/http-logtail-logpush#readme",
   "devDependencies": {
-    "wrangler": "^2.14.0"
+    "wrangler": "^2.20.2"
   }
 }
